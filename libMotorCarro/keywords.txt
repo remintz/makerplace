@@ -1,0 +1,12 @@
+MotorCarro	KEYWORD1
+paraFrente	KEYWORD2
+paraTras	KEYWORD2
+parado	KEYWORD2
+paraDireitaFrente	KEYWORD2
+paraEsquerdaFrente	KEYWORD2
+giraDireita	KEYWORD2
+giraEsquerda	KEYWORD2
+paraDireitaTras	KEYWORD2
+paraEsquerdaTras	KEYWORD2
+serialPrint	KEYWORD2
+

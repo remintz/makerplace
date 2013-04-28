@@ -16,7 +16,7 @@ int PINO_TRIGGER_SENSOR = 13;
 int PINO_ECHO_SENSOR = 12;
 int PINO_CAMPAINHA = 9;
 
-int DISTANCIA_ZONA_1 = 50;
+int DISTANCIA_ZONA_1 = 30;
 int DISTANCIA_ZONA_2 = 20;
 int DISTANCIA_ZONA_3 = 10;
 int DISTANCIA_ZONA_4 = 5;
@@ -58,7 +58,7 @@ void loop() {
   //--- o calculo da distancia considera que a velocidade do som = 343.5 m/s
   distancia = (tempoEco/2) / 29.1;
   
-  //--- controla os leds e a campainha de acordo com a distancia
+  //--- verifica em que faixa de distancia o obstaculo se encontra
   if (distancia < DISTANCIA_ZONA_4) {
     ligaAlerta = true;
     zonaAlerta = 4;
@@ -72,27 +72,30 @@ void loop() {
     ligaAlerta = true;
     zonaAlerta = 1;
   } else {
+    //--- obstaculo esta distante
     zonaAlerta = 0;
-    contaCiclos = 0;
+    alertaLigado = false;
     if (campainhaLigada) {
-      Serial.println("desliga 1");
       digitalWrite(PINO_CAMPAINHA, LOW);
       campainhaLigada = false;
     }
   }
 
+//--- controle da campainha
 if (alertaLigado) {
   if ((zonaAlerta > 0) && (zonaAlerta < 4)) {
+    //--- a campainha so fica ligada um ciclo
     if (campainhaLigada) {
-      Serial.println("desliga 2");
       digitalWrite(PINO_CAMPAINHA, LOW);
       campainhaLigada = false;
     }
+    //--- verifica se eh hora de ligar novamente
     contaCiclos = contaCiclos - 1;
     if (contaCiclos < 0) {
-      Serial.println("liga 2");
+      //--- ta na hora
       digitalWrite(PINO_CAMPAINHA, HIGH);
       campainhaLigada = true;
+      //--- calcula quando deve ser ligada novamente
       switch (zonaAlerta) {
         case 1:
           contaCiclos = INTERVALO_ZONA_1 / DURACAO_CICLO;
@@ -106,14 +109,12 @@ if (alertaLigado) {
         default:
           break;
       }
-      Serial.print("contaCiclos ");
-      Serial.println(contaCiclos);
-     
     }
   }
 } else {
+  //--- o alerta nao estava ligado
   if (ligaAlerta) {
-    Serial.println("liga 1");
+    //--- veio um comando para ligar o alerta
     digitalWrite(PINO_CAMPAINHA, HIGH);
     campainhaLigada = true;
     ligaAlerta = false;
@@ -121,6 +122,7 @@ if (alertaLigado) {
   }
 }
   
+//--- a exibicao da distancia nao acontece em todos os ciclos
 contaCicloExibeDistancia -= 1;
 if (contaCicloExibeDistancia < 0) {
   contaCicloExibeDistancia = PERIODO_EXIBE_DISTANCIA;
